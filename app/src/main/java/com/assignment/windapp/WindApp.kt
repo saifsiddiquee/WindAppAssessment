@@ -4,8 +4,4 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class WindApp : Application() {
-    override fun onCreate() {
-        super.onCreate()
-    }
-}
+class WindApp : Application()
