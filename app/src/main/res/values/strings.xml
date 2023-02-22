@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Wind App</string>
+    <string name="label_pin_field">Enter Your PIN</string>
+    <string name="label_user_field">\@username or wallet address</string>
+</resources>
