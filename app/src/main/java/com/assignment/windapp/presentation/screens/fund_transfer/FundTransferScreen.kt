@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil.ImageLoader
+import coil.compose.AsyncImage
 import com.assignment.windapp.R
 import com.assignment.windapp.data.remote.dto.AccountInfo
 import com.assignment.windapp.domain.model.User
@@ -172,9 +174,10 @@ fun UserSection(userData: User) {
                 .padding(vertical = 4.dp, horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(R.drawable.ic_qr),
-                contentDescription = "avatar",
+            AsyncImage(
+                model = userData.data.userInfo.profileImage,
+                contentDescription = "Profile image",
+                imageLoader = ImageLoader(context = LocalContext.current.applicationContext),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(36.dp)
@@ -342,8 +345,6 @@ fun AmountSection(accountInfo: AccountInfo, textValue: MutableState<TextFieldVal
             }
         }
     }
-
-
 
     LaunchedEffect(Unit) {
         delay(200)

@@ -71,6 +71,9 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
 
+    //coil
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
     // GSON
     implementation "com.google.code.gson:gson:$gsonVersion"
 
