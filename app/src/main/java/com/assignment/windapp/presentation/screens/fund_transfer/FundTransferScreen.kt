@@ -146,11 +146,11 @@ fun UserSection() {
             Image(
                 painter = painterResource(R.drawable.ic_qr),
                 contentDescription = "avatar",
-                contentScale = ContentScale.Crop,            // crop the image if it's not a square
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(36.dp)
                     .padding(2.dp)
-                    .clip(CircleShape)                       // clip to the circle shape
+                    .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(

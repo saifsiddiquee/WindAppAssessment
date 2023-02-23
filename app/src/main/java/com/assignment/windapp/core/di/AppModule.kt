@@ -1,4 +1,4 @@
-package com.assignment.windapp.di
+package com.assignment.windapp.core.di
 
 import com.assignment.windapp.common.Constants
 import com.assignment.windapp.data.remote.service.ApiService

@@ -17,7 +17,7 @@ import com.assignment.windapp.presentation.ui.theme.disabledButtonColor
 import com.assignment.windapp.presentation.ui.theme.secondaryColor
 
 @Composable
-fun PrimaryButton(onClick: () -> Unit) {
+fun PrimaryButton(enable: Boolean = true, onClick: () -> Unit) {
     Button(
         modifier = Modifier
             .fillMaxWidth()
@@ -28,6 +28,7 @@ fun PrimaryButton(onClick: () -> Unit) {
             contentColor = Color.White,
             disabledBackgroundColor = disabledButtonColor
         ),
+        enabled = enable,
         content = {
             Text(
                 text = "Continue",
