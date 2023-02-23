@@ -1,8 +1,10 @@
 package   com.assignment.windapp.presentation.screens.fund_transfer
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,18 +24,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.assignment.windapp.R
+import com.assignment.windapp.data.remote.dto.AccountInfo
+import com.assignment.windapp.domain.model.User
 import com.assignment.windapp.presentation.common.PrimaryButton
+import com.assignment.windapp.presentation.screens.auth.UserViewModel
 import com.assignment.windapp.presentation.ui.appBarTitleStyle
 import com.assignment.windapp.presentation.ui.theme.secondaryColor
 import kotlinx.coroutines.delay
@@ -43,12 +52,17 @@ import kotlinx.coroutines.delay
  */
 
 @Composable
-fun FundTransferScreen(navHostController: NavHostController) {
+fun FundTransferScreen(
+    navHostController: NavHostController,
+    viewModel: UserViewModel = hiltViewModel()
+) {
     val bgColor = listOf(
         Color(0XFFFF4848),
         Color(0X69FFBBBB),
         Color(0XFF9A18FF),
     )
+    val userData = viewModel.getUser()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -94,32 +108,47 @@ fun FundTransferScreen(navHostController: NavHostController) {
                         alpha = 0.05f,
                     )
             ) {
-                FundTransferContent()
+                FundTransferContent(userData = userData)
             }
         }
     )
 }
 
 @Composable
-fun FundTransferContent() {
+fun FundTransferContent(userData: User) {
+    val textValue = remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = ""
+            )
+        )
+    }
+
     Column(
         verticalArrangement = Arrangement.Top,
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        UserSection()
+        val notValidAmount = textValue.value.text.isNotEmpty()
+                && textValue.value.text.trim().toDouble() > userData.data.accountInfo.balance
+        UserSection(userData)
         Spacer(modifier = Modifier.height(16.dp))
-        AmountSection()
-        ErrorSection()
+        AmountSection(accountInfo = userData.data.accountInfo, textValue = textValue)
+        if (notValidAmount
+        ) {
+            ErrorSection()
+        } else {
+            Spacer(modifier = Modifier.padding(0.dp))
+        }
         Spacer(modifier = Modifier.weight(1f))
-        PrimaryButton(onClick = {})
+        PrimaryButton(onClick = {}, enable = !notValidAmount && textValue.value.text.isNotEmpty())
     }
 }
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun UserSection() {
+fun UserSection(userData: User) {
     val gradient = listOf(
         Color(0XFF6E50FF),
         Color(0XFFFF50BA),
@@ -154,34 +183,31 @@ fun UserSection() {
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "@username", style = TextStyle(
+                text = "@${userData.data.userInfo.userName}",
+                style = TextStyle(
                     brush = Brush.horizontalGradient(
                         colors = gradient,
                         tileMode = TileMode.Mirror
                     ),
-                    fontSize = 16.sp
-                )
+                    fontSize = 16.sp,
+                ),
             )
 
             Text(
-                text = " - 3CGH...UwvX", style = TextStyle(
+                text = " - ${userData.data.userInfo.walletAddress}",
+                style = TextStyle(
                     color = Color(0XFF75808A),
-                    fontSize = 16.sp
-                )
+                    fontSize = 16.sp,
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
 }
 
 @Composable
-fun AmountSection() {
-    var textValue by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = ""
-            )
-        )
-    }
+fun AmountSection(accountInfo: AccountInfo, textValue: MutableState<TextFieldValue>) {
 
     val focusRequester = remember {
         FocusRequester()
@@ -197,6 +223,7 @@ fun AmountSection() {
         Color(0XFFFFA450),
         Color(0XFF6E50FF)
     )
+
     Card(
         shape = RoundedCornerShape(size = 20.dp),
         border = BorderStroke(
@@ -229,9 +256,9 @@ fun AmountSection() {
                             translationX = (-16).dp.toPx()
                         }
                         .focusRequester(focusRequester),
-                    value = textValue,
-                    onValueChange = { newValue ->
-                        textValue = newValue
+                    value = textValue.value,
+                    onValueChange = {
+                        textValue.value = it
                     },
                     textStyle = TextStyle(
                         color = Color.Black,
@@ -267,18 +294,35 @@ fun AmountSection() {
                         )
                     }*/
                 )
-                Text(
-                    text = "MAX",
+                TextButton(
                     modifier = Modifier
                         .weight(0.2F)
                         .align(Alignment.CenterVertically)
-                        .background(color = secondaryColor, shape = RoundedCornerShape(8.dp))
                         .padding(vertical = 8.dp),
-                    style = TextStyle(
-                        textAlign = TextAlign.Center,
-                        color = Color.White
+                    shape = RoundedCornerShape(size = 8.dp),
+                    onClick = { textValue.value = TextFieldValue(accountInfo.balance.toString()) },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = if (textValue.value.text.isNotEmpty() && textValue.value.text
+                                .trim()
+                                .toDouble() == accountInfo.balance
+                        ) secondaryColor else Color.White,
+                        contentColor = secondaryColor
+                    ),
+                    elevation = ButtonDefaults.elevation(
+                        defaultElevation = 4.dp
                     )
-                )
+                ) {
+                    Text(
+                        text = "MAX",
+                        style = TextStyle(
+                            textAlign = TextAlign.Center,
+                            color = if (textValue.value.text.isNotEmpty() && textValue.value.text
+                                    .trim()
+                                    .toDouble() == accountInfo.balance
+                            ) Color.White else secondaryColor,
+                        )
+                    )
+                }
             }
 
             Row(
@@ -288,11 +332,11 @@ fun AmountSection() {
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "USDC",
+                    text = accountInfo.currency,
                     style = TextStyle(color = Color.LightGray, fontWeight = FontWeight.Medium)
                 )
                 Text(
-                    text = "Balance USDC 381.24",
+                    text = "Balance ${accountInfo.currency} ${accountInfo.balance}",
                     style = TextStyle(color = Color.LightGray, fontWeight = FontWeight.Medium)
                 )
             }

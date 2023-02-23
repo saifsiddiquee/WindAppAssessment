@@ -62,6 +62,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.datastore:datastore:1.0.0'
     kapt "com.google.dagger:hilt-compiler:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
@@ -72,6 +73,9 @@ dependencies {
 
     // GSON
     implementation "com.google.code.gson:gson:$gsonVersion"
+
+    //pref ktx
+    implementation("androidx.preference:preference-ktx:1.2.0")
 
     //navigation
     implementation("androidx.navigation:navigation-compose:$nav_version")

@@ -149,6 +149,7 @@ fun AuthScreen(
 
     LaunchedEffect(viewModel.loginSuccess.value) {
         if (viewModel.loginSuccess.value) {
+            viewModel.saveUser(viewModel.state.value.user)
             navController.navigate(AppNavigation.FundTransferScreen.route)
         }
     }
